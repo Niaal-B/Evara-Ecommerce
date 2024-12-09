@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Success</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+
+      .success-box {
+        width: 480px;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .success-icon {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+      }
+
+      .success-icon .circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: rgba(35, 162, 109, 0.12);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: scaleIn 0.6s ease-out forwards;
+      }
+
+      .success-icon .tick {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(45deg);
+        width: 25px;
+        height: 45px;
+        border-bottom: 6px solid #23a26d;
+        border-right: 6px solid #23a26d;
+        opacity: 0;
+        animation: fadeInTick 0.8s ease-out forwards 0.6s;
+      }
+
+      .success-box h1 {
+        color: #474747;
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+      .success-box h2 {
+        color: #121212;
+        font-size: 32px;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+      hr {
+        border: 0;
+        height: 1px;
+        background: #ededed;
+        margin: 20px 0;
+      }
+
+      .details div {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        font-size: 18px;
+        color: #707070;
+      }
+
+      .details div span:last-child {
+        font-weight: 500;
+        color: #121212;
+      }
+      .buttons {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      button {
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+
+      .home-btn {
+        background: #23a26d;
+        color: #fff;
+      }
+
+      .pdf-btn {
+        background: #ededed;
+        color: #707070;
+      }
+      button:hover {
+        transform: scale(1.05);
+      }
+
+      .home-btn:hover {
+        background: #1d8a5d;
+      }
+
+      .pdf-btn:hover {
+        background: #dadada;
+      }
+
+      @keyframes scaleIn {
+        0% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInTick {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Invoice PDF Styles - Hidden by default */
+      #invoice-container {
+        display: none;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      #invoice-container .invoice-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 800px;
+        width: 100%;
+      }
+      #invoice-container .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+      #invoice-container .invoice-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+      }
+      #invoice-container .billed-to,
+      #invoice-container .payment-info {
+        margin-bottom: 20px;
+      }
+      #invoice-container .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      #invoice-container .items {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      #invoice-container .items th,
+      #invoice-container .items td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+      }
+      #invoice-container .items th {
+        background-color: #f1f1f1;
+        color: #333;
+      }
+      #invoice-container .totals {
+        text-align: right;
+        margin-bottom: 20px;
+      }
+      #invoice-container .totals p {
+        font-size: 16px;
+        margin: 5px 0;
+      }
+      #invoice-container .totals .total-amount {
+        font-size: 18px;
+        font-weight: bold;
+        color: #007bff;
+      }
+      #invoice-container .thank-you {
+        text-align: center;
+        font-size: 18px;
+        color: #007bff;
+        margin-bottom: 20px;
+      }
+      #invoice-container .payment-info {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="success-box">
+        <div class="success-icon">
+          <div class="circle"></div>
+          <div class="tick"></div>
+        </div>
+        <h1>Order Success!</h1>
+        <h2>₹{{order.total_price}}</h2>
+        <hr />
+        <div class="details">
+          <div>
+            <span>Ref Number</span>
+            <span>{{order.id}}</span>
+          </div>
+          <div>
+            <span>Ordered Time</span>
+            <span>{{order.created_at}}</span>
+          </div>
+          <div>
+            <span>Payment Method</span>
+            <span>{{order.payment_method}}</span>
+          </div>
+          <div>
+            <span>Customer Name</span>
+            <span>{{order.user}}</span>
+          </div>
+        </div>
+        <hr />
+        <div class="details">
+          <div>
+            <span>Total Amount</span>
+            <span>₹{{order.total_price}}</span>
+          </div>
+        </div>
+        <div class="buttons">
+          <a href="/"><button class="home-btn">Back to Home</button></a>
+          <button class="pdf-btn" onclick="generatePDF()">Get PDF Receipt</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden Invoice Container for PDF Generation -->
+    <div id="invoice-container">
+      <div class="invoice-container">
+        <div class="header">
+          <div class="logo"></div>
+          <h1 class="invoice-title">Invoice</h1>
+        </div>
+        <div class="billed-to">
+          <p class="section-title">Pay To:</p>
+          <p>Evara</p>
+        </div>
+        <table class="items">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order_items %}
+            <tr>
+              <td>{{item.product.name}}</td>
+              <td>{{item.quantity}}</td>
+              <td>₹{{item.price}}</td>
+              <td>₹{{item.subtotal}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="totals">
+          <p class="total-amount">Total: ₹{{order.total_price}}</p>
+        </div>
+        <div class="thank-you">Thank you for your Purchase!</div>
+        <div class="payment-info">
+          <p class="section-title">Payment Information:</p>
+          <p>Payment Method: {{order.payment_method}}</p>
+          <p>Payment Status: {{order.payment_status}}</p>
+          <p>Order date: {{order.created_at}}</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        // Get the invoice container
+        const invoiceContainer = document.getElementById('invoice-container');
+        
+        // Temporarily show the container for rendering
+        invoiceContainer.style.display = 'block';
+        
+        // Use html2canvas to convert the invoice to a canvas
+        html2canvas(invoiceContainer, { 
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          allowTaint: true,
+          scrollX: 0,
+          scrollY: -window.scrollY
+        }).then(canvas => {
+          // Hide the container again
+          invoiceContainer.style.display = 'none';
+          
+          // Convert canvas to image
+          const imgData = canvas.toDataURL('image/jpeg', 1.0);
+          
+          // PDF page dimensions
+          const imgWidth = 210; // A4 width in mm
+          const pageHeight = 295; // A4 height in mm
+          
+          // Calculate image height maintaining aspect ratio
+          const imgHeight = canvas.height * imgWidth / canvas.width;
+          
+          try {
+            // Add image to PDF
+            doc.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+            
+            // Save PDF
+            doc.save(`Invoice_{{order.id}}.pdf`);
+          } catch (error) {
+            console.error('PDF Generation Error:', error);
+            alert('Failed to generate PDF. Please try again.');
+          }
+        }).catch(error => {
+          console.error('Canvas Rendering Error:', error);
+          alert('Failed to render invoice. Please try again.');
+          
+          // Hide the container in case of error
+          invoiceContainer.style.display = 'none';
+        });
+      }
+    </script>
+  </body>
+</html>

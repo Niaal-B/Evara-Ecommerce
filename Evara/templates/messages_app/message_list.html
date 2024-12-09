@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-2xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="p-4 bg-blue-500 text-white font-bold">
+            Messages
+        </div>
+        <ul class="divide-y divide-gray-200 max-h-[500px] overflow-y-auto">
+            {% for message in messages %}
+            <li class="p-4 hover:bg-gray-50 transition duration-200 ease-in-out 
+                {% if not message.is_read %}bg-blue-50 border-l-4 border-blue-500{% endif %}">
+                <div class="flex justify-between items-start">
+                    <div class="flex-grow pr-4">
+                        <strong class="text-gray-800 font-semibold">
+                            {{ message.sender.username }}
+                        </strong>
+                        <p class="text-gray-600 mt-1">
+                            {{ message.content }}
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <small class="text-gray-500 text-sm">
+                            {{ message.timestamp }}
+                        </small>
+                   
+                        <a href="{% url 'reply_message' message.id %}"   class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                            Reply
+                        </a>
+                        
+                    </div>
+                </div>
+            </li>
+            {% empty %}
+            <li class="p-4 text-center text-gray-500">
+                No messages found.
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
